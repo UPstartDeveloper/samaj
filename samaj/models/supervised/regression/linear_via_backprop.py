@@ -47,15 +47,12 @@ class LinearRegressorBackprop(base.BaseModel):
             self.intercept = 0
 
     def fit(self, X_train: np.array, y_train: np.array, 
-            epochs: int, loss, optimizer):
+            epochs: int, optimizer):
         """
         Goal is to find the best parameters, via minimizing the loss.
 
         X_train, y_train: arrays with shapes are (m, n) and (m, 1) respectively.
         epochs: int
-        loss: a loss metric, usually mean-squared error because it is convex
-              which means that the optimizer will converge on it as long as the learning
-              rate isn't too high, and we give enough epochs
         optimizer: should have a learning rate, and a tolerance at least
 
         Returns: None. Updates the parameter + intercept state at the end of training loop.
@@ -68,14 +65,12 @@ class LinearRegressorBackprop(base.BaseModel):
             weight_vector = np.concat([weight_vector, np.ones(1, 1)], 0)
 
         # let the optimizer converge
-        eta = 66.7
         for _ in range(epochs):
             y_pred = np.dot(X_train, weight_vector)
             error = y_pred - y_train
-            # TODO: new_weights = optimizer.compute_weight_update(error, loss)  # expect a column vector
-            gradients = 2/num_samples * X_train.T.dot(error)
-            new_weights = weight_vector - eta * gradients
-            weight_vector = new_weights
+            weight_vector = optimizer.compute_weight_update(
+                error, "MSE", m=num_samples, X_train=X_train
+            )
 
         # and set the best new params
         best_params = np.squeeze(weight_vector.reshape(1, -1))  # 1D vector
@@ -101,9 +96,5 @@ if __name__ == "__main__":
         f"training/testing the model with {num_cross_val_folds}-fold cross validation...",
         end="\n\n",
     )
-    LinearRegressorBackprop.fit_evaluate(
-        domain.reshape(-1, 1),
-        target,
-        logging=True,
-        preprocessing=[preprocessing.PolynomialFeatures(2, include_bias=False)],
-    )
+    # TODO
+    pass
