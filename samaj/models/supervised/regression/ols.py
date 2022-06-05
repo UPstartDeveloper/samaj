@@ -1,5 +1,3 @@
-
-   
 # ******************************************************************************
 # PROMPT
 # ------
@@ -11,6 +9,7 @@ from sklearn import preprocessing
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 import numpy as np
+from numpy import random
 
 from samaj.models.supervised import base
 
@@ -19,7 +18,7 @@ from samaj.models.supervised import base
 # ==============================================================================
 # Load and separate the data
 domain = np.arange(100)
-noise = np.rand(100)
+noise = random.rand(100)
 target = (2 * (domain ** 2)) + (5 * domain) + noise
 
 # Split the data into train/test sets
@@ -32,6 +31,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 #
 # APPROACH 1: Linear Regression - this is an example of NOT having enough
 #                                 variance in the model
+#                               - it uses a closed form solution based on SVD
 # ==============================================================================
 class LinearRegressor(base.BaseModel):
     def __init__(
