@@ -5,13 +5,14 @@
 # best fits the data.
 # **************************************
 
-from sklearn import preprocessing
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
 import numpy as np
 from numpy import random
 
 from samaj.models.supervised import base
+from samaj.optimizers.gradient_descent import BatchGradientDescent
 
 # ==============================================================================
 # LOAD DATA
@@ -39,15 +40,14 @@ class LinearRegressorBackprop(base.BaseModel):
             "MSE": make_scorer(mean_squared_error),
             "R2": make_scorer(r2_score),
         },
-        include_bias=True
+        include_bias=True,
     ):
         super().__init__(evaluate_on)
         self.parameters = list()  #  default value, because we don't know how many features yet
         if include_bias is True:
             self.intercept = 0
 
-    def fit(self, X_train: np.array, y_train: np.array, 
-            epochs: int, optimizer):
+    def fit(self, X_train: np.array, y_train: np.array, epochs=1000, optimizer=None):
         """
         Goal is to find the best parameters, via minimizing the loss.
 
@@ -57,12 +57,15 @@ class LinearRegressorBackprop(base.BaseModel):
 
         Returns: None. Updates the parameter + intercept state at the end of training loop.
         """
+        if optimizer is None:
+            optimizer = BatchGradientDescent()
+
         # formulate the weight matrix to pass to the optimizer
         num_samples, num_features = X_train.shape
 
-        weight_vector = random.rand(num_features).reshape(num_features, 1)  # col vector
+        weight_vector = np.array([self.parameters])
         if hasattr(self, "intercept") is True:
-            weight_vector = np.concat([weight_vector, np.ones(1, 1)], 0)
+            weight_vector = np.concatenate([weight_vector, np.ones((1, 1))], 1)
 
         # let the optimizer converge
         for _ in range(epochs):
@@ -81,11 +84,11 @@ class LinearRegressorBackprop(base.BaseModel):
             self.parameters = best_params[:]
 
     def predict(self, X_test):
-            weight_vector = np.array([self.parameters])
-            if hasattr(self, "intercept") is True:
-                weight_vector = np.concat([weight_vector, np.ones(1, 1)], 0)
-            y_pred = X_test.dot(weight_vector.T)
-            return y_pred
+        weight_vector = np.array([self.parameters])
+        if hasattr(self, "intercept") is True:
+            weight_vector = np.concat([weight_vector, np.ones(1, 1)], 0)
+        y_pred = X_test.dot(weight_vector.T)
+        return y_pred
 
 
 if __name__ == "__main__":
@@ -96,5 +99,10 @@ if __name__ == "__main__":
         f"training/testing the model with {num_cross_val_folds}-fold cross validation...",
         end="\n\n",
     )
-    # TODO
-    pass
+    # TODO: debug
+    LinearRegressorBackprop.fit_evaluate(
+        domain.reshape(-1, 1),
+        target,
+        logging=True,
+        preprocessing=[],
+    )
