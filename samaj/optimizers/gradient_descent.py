@@ -12,6 +12,6 @@ class BatchGradientDescent:
             m = kwargs["m"]
             X_train = kwargs["X_train"]
             gradients = 2 / m * X_train.T.dot(error)
+        new_weights = weight_vector - self.eta * gradients
 
-        if gradients:
-            return weight_vector - self.eta * gradients
+        return new_weights

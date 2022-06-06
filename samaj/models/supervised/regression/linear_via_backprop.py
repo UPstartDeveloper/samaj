@@ -5,6 +5,7 @@
 # best fits the data.
 # **************************************
 
+from scipy import rand
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
@@ -20,11 +21,11 @@ from samaj.optimizers.gradient_descent import BatchGradientDescent
 # Load and separate the data
 domain = np.arange(100)
 noise = random.rand(100)
-target = (2 * (domain ** 2)) + (5 * domain) + noise
+target = (2 * (domain)) + (5) + noise
 
 # Split the data into train/test sets
 X_train, X_test, y_train, y_test = train_test_split(
-    domain, target, test_size=0.20, random_state=42
+    domain.reshape(-1,1), target.reshape(-1,1), test_size=0.20, random_state=42
 )
 
 # ==============================================================================
@@ -63,16 +64,19 @@ class LinearRegressorBackprop(base.BaseModel):
         # formulate the weight matrix to pass to the optimizer
         num_samples, num_features = X_train.shape
 
-        weight_vector = np.array([self.parameters])
+        inputs, weight_vector = X_train, random.rand(num_features)  # (m, n) and (1, n)  respectively
         if hasattr(self, "intercept") is True:
-            weight_vector = np.concatenate([weight_vector, np.ones((1, 1))], 1)
+            weight_vector = np.concatenate([weight_vector, np.array([self.intercept])], 0).reshape(1, 2)
+            ones = np.ones(num_samples).reshape(-1, 1)
+            inputs = np.concatenate([X_train, ones], 1)
 
-        # let the optimizer converge
+
+        # let the optimizer minimize the gradients 
         for _ in range(epochs):
-            y_pred = np.dot(X_train, weight_vector)
-            error = y_pred - y_train
+            y_pred = np.dot(inputs, weight_vector.T)
+            error = (np.squeeze(y_pred) - np.squeeze(y_train)).reshape(-1, 1)
             weight_vector = optimizer.compute_weight_update(
-                error, "MSE", m=num_samples, X_train=X_train
+                error, "MSE", weight_vector, m=num_samples, X_train=X_train
             )
 
         # and set the best new params
@@ -85,9 +89,12 @@ class LinearRegressorBackprop(base.BaseModel):
 
     def predict(self, X_test):
         weight_vector = np.array([self.parameters])
+        inputs = X_test
         if hasattr(self, "intercept") is True:
-            weight_vector = np.concat([weight_vector, np.ones(1, 1)], 0)
-        y_pred = X_test.dot(weight_vector.T)
+            weight_vector = np.concatenate([weight_vector, np.ones((1, 1))], 1)
+            ones = np.ones(X_test.shape[0]).reshape(-1,1)
+            inputs = np.concatenate([X_test, ones], 1)
+        y_pred = inputs.dot(weight_vector.T)
         return y_pred
 
 
@@ -102,7 +109,7 @@ if __name__ == "__main__":
     # TODO: debug
     LinearRegressorBackprop.fit_evaluate(
         domain.reshape(-1, 1),
-        target,
+        target.reshape(-1, 1),
         logging=True,
-        preprocessing=[],
+        preprocessing=[preprocessing.StandardScaler()],
     )
