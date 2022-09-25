@@ -1,8 +1,10 @@
 # Samaj
 
+![Samaj logo](https://i.postimg.cc/XNchcYWp/86fd3329e5dd42189d53b2960eb80c7e-3.png)
+
 Implementing classic machine learning algorithms from scratch with NumPy, for interview prep (and fun).
 
-Fun fact: "samaj" is a transliteration of the word for "understanding" in Urdu!
+Fun fact: "samaj" is a transliteration of the word for "understanding" in Urdu/Hindi!
 
 ## How to Run Locally
 
