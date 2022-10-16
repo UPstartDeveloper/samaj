@@ -5,6 +5,8 @@ import numpy as np
 
 
 class KNN:
+    ## TODO: maybe look into see if KNN can inherit from base.BaseModel somehow
+    # (even though KNN is a non-parametric model)
     def __init__(self, k: int, metric="euclidean"):
         self.k = k
         self.metric = metric
