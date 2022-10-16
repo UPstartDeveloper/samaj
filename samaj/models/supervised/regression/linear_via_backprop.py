@@ -25,7 +25,7 @@ target = (2 * (domain)) + (5) + noise
 
 # Split the data into train/test sets
 X_train, X_test, y_train, y_test = train_test_split(
-    domain.reshape(-1,1), target.reshape(-1,1), test_size=0.20, random_state=42
+    domain.reshape(-1, 1), target.reshape(-1, 1), test_size=0.20, random_state=42
 )
 
 # ==============================================================================
@@ -44,7 +44,9 @@ class LinearRegressorBackprop(base.BaseModel):
         include_bias=True,
     ):
         super().__init__(evaluate_on)
-        self.parameters = list()  #  default value, because we don't know how many features yet
+        self.parameters = (
+            list()
+        )  #  default value, because we don't know how many features yet
         if include_bias is True:
             self.intercept = 0
 
@@ -64,14 +66,17 @@ class LinearRegressorBackprop(base.BaseModel):
         # formulate the weight matrix to pass to the optimizer
         num_samples, num_features = X_train.shape
 
-        inputs, weight_vector = X_train, random.rand(num_features)  # (m, n) and (1, n)  respectively
+        inputs, weight_vector = X_train, random.rand(
+            num_features
+        )  # (m, n) and (1, n)  respectively
         if hasattr(self, "intercept") is True:
-            weight_vector = np.concatenate([weight_vector, np.array([self.intercept])], 0).reshape(1, 2)
+            weight_vector = np.concatenate(
+                [weight_vector, np.array([self.intercept])], 0
+            ).reshape(1, 2)
             ones = np.ones(num_samples).reshape(-1, 1)
             inputs = np.concatenate([X_train, ones], 1)
 
-
-        # let the optimizer minimize the gradients 
+        # let the optimizer minimize the gradients
         for _ in range(epochs):
             y_pred = np.dot(inputs, weight_vector.T)
             error = (np.squeeze(y_pred) - np.squeeze(y_train)).reshape(-1, 1)
@@ -92,7 +97,7 @@ class LinearRegressorBackprop(base.BaseModel):
         inputs = X_test
         if hasattr(self, "intercept") is True:
             weight_vector = np.concatenate([weight_vector, np.ones((1, 1))], 1)
-            ones = np.ones(X_test.shape[0]).reshape(-1,1)
+            ones = np.ones(X_test.shape[0]).reshape(-1, 1)
             inputs = np.concatenate([X_test, ones], 1)
         y_pred = inputs.dot(weight_vector.T)
         return y_pred
