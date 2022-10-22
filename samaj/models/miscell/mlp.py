@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from email.generator import Generator
 import math
+
 import numpy as np
-from numpy.random import default_rng
+from numpy.random import default_rng, Generator
 from sklearn.metrics import make_scorer, accuracy_score
 
 from samaj.models.supervised import base
