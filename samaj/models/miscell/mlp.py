@@ -11,11 +11,12 @@ from samaj.util import activations
 
 @dataclass
 class BinaryClassificationMLP(base.BaseModel):
+    """Only supports 2-layer networks for the moment."""
     num_layers: int
     units_per_layer: np.ndarray
     threshold: float = 0.5
     classes: np.ndarray = np.array([0, 1])
-    rng: Generator = default_rng()
+    rng: Generator = default_rng(seed=42)
     evaluate_on: dict = {"Accuracy": make_scorer(accuracy_score)}
 
     def __init__(self, *args, **kwargs):
@@ -45,7 +46,7 @@ class BinaryClassificationMLP(base.BaseModel):
             fan_in = fan_out
             fan_out_index += 1
 
-    def forward(self, X):
+    def forward(self, X: np.ndarray) -> np.ndarray:
         current_activation = X
         layer_activations = list()
         for weight, bias, act_func in self.layers:
@@ -54,15 +55,16 @@ class BinaryClassificationMLP(base.BaseModel):
             layer_activations.append(current_activation)
         return layer_activations
 
-    def backward(self, X, y, learning_rate, activations):
+    def backward(self, X, y, learning_rate, activations) -> None:
         """TODO: generalize to L layers"""
         # variables we're going to need
         weights1, bias1, act1 = self.layers[0]
         weights2, bias2, act2 = self.layers[1]
+        per_sample_factor = (1 / X.shape[0])
         hidden_layer_activation, output_layer_activations = (
-            activations[0],
-            activations[1],
+            activations[0], activations[1]
         )
+        output_layer_weights = weights2
         num_samples = X.shape[0]
 
         # derivatives for the output layer
@@ -71,26 +73,18 @@ class BinaryClassificationMLP(base.BaseModel):
         error = y_pred - y_true
         derivative_y_pred = y_pred * (1 - y_pred)
         grad_output_layer = error * derivative_y_pred
-        derivative_output_layer = dW2 = (
-            grad_output_layer.T @ hidden_layer_activation
-        ).T
-        derivative_output_bias = db2 = (1 / num_samples) * np.sum(
-            error, axis=1, keepdims=True
-        )
+        derivative_output_layer = dW2 = (grad_output_layer.T @ hidden_layer_activation).T
+        derivative_output_bias = db2 = (1 / num_samples) * np.sum(error, axis=0, keepdims=True)
 
         # update weights in output layer before going fwd
         new_output_weights = weights2 - learning_rate * dW2
         new_output_bias = bias2 - learning_rate * db2
 
         # derivatives for the hidden layer
-        derivative_hidden_activation = z_prime = dZ1 = hidden_layer_activation * (
-            1 - hidden_layer_activation
-        )
+        derivative_hidden_activation = z_prime = dZ1 = hidden_layer_activation * (1 - hidden_layer_activation)
         grad_hidden_layer = grad_output_layer @ new_output_weights.T * z_prime
         derivative_hidden_weights = X.T @ grad_hidden_layer
-        derivative_hidden_bias = db1 = (1 / num_samples) * np.sum(
-            dZ1, axis=1, keepdims=True
-        )
+        derivative_hidden_bias = db1 = (1 / num_samples) * np.sum(z_prime, axis=0, keepdims=True).T
 
         # update weights in the hidden layer
         new_hidden_weights = weights1 - learning_rate * derivative_hidden_weights
@@ -102,17 +96,20 @@ class BinaryClassificationMLP(base.BaseModel):
 
     def fit(
         self, X_train: np.array, y_train: np.array, epochs=1000, learning_rate=0.0001
-    ) -> None:
-
+    ) -> "BinaryClassificationMLP":
         # A: initial state of the network
         num_features = X_train.shape[1]
         self.define_model(num_features)
+
+        layer1, layer2 = self.layers[0], self.layers[1]
 
         # B: training!
         for _ in range(epochs):
             activations = self.forward(X_train)
             self.backward(X_train, y_train, learning_rate, activations)
             # TODO: add callbacks/regularizers?
+        
+        return self
 
     def predict(self, X) -> np.ndarray:
         activations = self.forward(X)
