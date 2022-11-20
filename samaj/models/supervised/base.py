@@ -36,6 +36,7 @@ class BaseModel:
         Builds, trains, and evaluates a data pipeline with this model.
         K-fold cross validation is used to give a better picture
         of model performance. Fitting time is also displayed.
+        
         Parameters:
         X(np.array): an (n x m) matrix, where
                      n = # of samples
@@ -47,8 +48,10 @@ class BaseModel:
                              Any instances of sklearn.preprocessing
                              classes will work great here.
         logging(bool): whether or not to print the performance/timing metrics
+        
         Example Usage:
             SomeSubclass.fit_evaluate(X, y, preprocessing=[preprocessing.StandardScaler()])
+        
         Returns: the output of sklearn.model_selection.cross_validate:
                  https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_validate.html#sklearn.model_selection.cross_validate
         """

@@ -126,8 +126,4 @@ if __name__ == "__main__":
     units_per_layer = [5, 1]
     num_features = 2
     classes = np.array([-1, 1])
-    custom_mlp = BinaryClassificationMLP(
-        num_layers,
-        units_per_layer,
-        num_features,
-    )
+    custom_mlp = BinaryClassificationMLP(num_layers, units_per_layer, num_features,)

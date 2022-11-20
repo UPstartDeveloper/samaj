@@ -66,8 +66,9 @@ class LinearRegressorBackprop(base.BaseModel):
         # formulate the weight matrix to pass to the optimizer
         num_samples, num_features = X_train.shape
 
-        inputs, weight_vector = X_train, random.rand(
-            num_features
+        inputs, weight_vector = (
+            X_train,
+            random.rand(num_features),
         )  # (m, n) and (1, n)  respectively
         if hasattr(self, "intercept") is True:
             weight_vector = np.concatenate(
