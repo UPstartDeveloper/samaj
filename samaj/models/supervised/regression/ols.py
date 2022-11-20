@@ -19,7 +19,7 @@ from samaj.models.supervised import base
 # Load and separate the data
 domain = np.arange(100)
 noise = random.rand(100)
-target = (2 * (domain**2)) + (5 * domain) + noise
+target = (2 * (domain ** 2)) + (5 * domain) + noise
 
 # Split the data into train/test sets
 X_train, X_test, y_train, y_test = train_test_split(
