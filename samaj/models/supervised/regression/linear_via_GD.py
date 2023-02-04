@@ -34,7 +34,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # APPROACH 1: Linear Regression - this is an example of a model that does NOT
 #             use a closed form solution, and instead relies on backprop through time.
 # ==============================================================================
-class LinearRegressorBackprop(base.BaseModel):
+class LinearRegressorGD(base.BaseModel):
     def __init__(
         self,
         evaluate_on={
@@ -107,13 +107,13 @@ class LinearRegressorBackprop(base.BaseModel):
 if __name__ == "__main__":
     num_cross_val_folds = 5
     print("==========================================================")
-    print("Example: LINEAR REGRESSION, using Backpropagation", end="\n\n")
+    print("Example: LINEAR REGRESSION, using Gradient Descent", end="\n\n")
     print(
         f"training/testing the model with {num_cross_val_folds}-fold cross validation...",
         end="\n\n",
     )
     # TODO: debug
-    LinearRegressorBackprop.fit_evaluate(
+    LinearRegressorGD.fit_evaluate(
         domain.reshape(-1, 1),
         target.reshape(-1, 1),
         logging=True,
