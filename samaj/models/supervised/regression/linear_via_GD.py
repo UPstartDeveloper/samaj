@@ -78,10 +78,10 @@ class LinearRegressorGD(base.BaseModel):
 
         # let the optimizer minimize the gradients
         for _ in range(epochs):
-            y_pred = np.dot(inputs, weight_vector.T)
+            y_pred = inputs.dot(weight_vector.T)
             error = (np.squeeze(y_pred) - np.squeeze(y_train)).reshape(-1, 1)
             weight_vector = optimizer.compute_weight_update(
-                error, "MSE", weight_vector, m=num_samples, X_train=X_train
+                error, "MSE", weight_vector, batch_size=num_samples, X_train=X_train
             )
 
         # and set the best new params
