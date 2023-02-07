@@ -5,7 +5,6 @@
 # best fits the data.
 # **************************************
 
-from scipy import rand
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
