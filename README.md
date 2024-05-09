@@ -1,6 +1,6 @@
 # Samaj
 
-<img src="https://i.postimg.cc/kXQJ6Cd8/Samaj-logo.png" alt="Samaj logo image" height="45%" width="60%">
+<img src="./assets/Samaj_logo.png" alt="Samaj logo image" height="45%" width="60%">
 
 A tool for understanding :)
 
